@@ -560,12 +560,22 @@ while running:
                     if current_stage + 1 in STAGE_SETTINGS:
                         current_stage += 1
                         current_stage_settings = STAGE_SETTINGS[current_stage]
+
+                        # パワーアップ状態を保存
+                        was_rapid_fire_active = player.rapid_fire_active
+                        was_spread_shot_active = player.spread_shot_active
+
                         all_sprites.empty()
                         enemies.empty()
                         player_bullets.empty()
                         enemy_bullets.empty()
                         bosses.empty()
+                        
                         player = Player()
+                        # 保存したパワーアップ状態を復元
+                        player.rapid_fire_active = was_rapid_fire_active
+                        player.spread_shot_active = was_spread_shot_active
+
                         all_sprites.add(player)
                         players.add(player)
                         for i in range(current_stage_settings["max_enemies_on_screen"]):
@@ -671,8 +681,8 @@ while running:
 
         if current_boss:
             boss_hits = pygame.sprite.spritecollide(current_boss, player_bullets, True)
-            for hit_bullet in boss_hits:
-                current_boss.health -= 1
+            if boss_hits:
+                current_boss.health -= len(boss_hits)
                 if current_boss.health <= 0:
                     score += 1000
                     current_boss.kill()
